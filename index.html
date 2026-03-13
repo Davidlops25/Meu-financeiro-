@@ -155,11 +155,11 @@
 
 <script>
     let db = JSON.parse(localStorage.getItem('hplus_final_db')) || {
-        users: ['Carla', 'David'],
-        banks: ['PICPAY', 'NUBANK', 'BRADESCO'],
+        users: [],
+        banks: [],
         expenses: [],
         gains: [],
-        limits: { PICPAY: 0, NUBANK: 0, BRADESCO: 0 }
+        limits: {}
     };
 
     const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
