@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOME+ | Dash Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg-body: #050508; --bg-panel: #11111a; --bg-hover: #181825;
+            --accent: #E50914; --success: #10b981; --warning: #f59e0b;
+            --text-main: #f8fafc; --text-muted: #64748b; 
+            --border: #222233; --radius: 16px;
+        }
+        * { box-sizing: border-box; transition: all 0.2s ease-out; }
+        body { background-color: var(--bg-body); color: var(--text-main); font-family: 'Inter', sans-serif; margin: 0; padding: 15px; overflow-x: hidden; }
+        .container { max-width: 1300px; margin: 0 auto; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border); margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
+        .brand h1 { font-size: 1.8rem; font-weight: 800; margin: 0; }
+        .brand span { color: var(--accent); }
+        
+        .header-stats { display: flex; gap: 10px; flex-wrap: wrap; width: 100%; justify-content: space-between; }
+        .stat-mini { background: var(--bg-panel); border: 1px solid var(--border); padding: 12px; border-radius: 12px; flex: 1; min-width: 100px; }
+        .stat-label { font-size: 0.6rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; display: block; }
+        .stat-value { font-size: 0.95rem; font-weight: 700; margin-top: 4px; }
+
+        .profile-bar { display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
+        .profile-box { padding: 8px 18px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 30px; cursor: pointer; font-size: 0.8rem; white-space: nowrap; }
+        .profile-box.active { border-color: var(--accent); background: var(--accent); color: white; }
+
+        .card-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .bank-card { background: linear-gradient(145deg, #14141f 0%, #0d0d14 100%); padding: 20px; border-radius: 18px; border: 1px solid var(--border); border-top: 3px solid var(--border); }
+        
+        .progress-bg { background: #222; height: 6px; border-radius: 10px; margin: 10px 0; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 10px; }
+
+        .dashboard-grid { display: grid; grid-template-columns: 320px 1fr; gap: 25px; }
+        @media (max-width: 950px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+        .form-card { background: var(--bg-panel); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 20px; }
+        .form-card h3 { font-size: 0.95rem; margin: 0 0 15px; border-left: 3px solid var(--accent); padding-left: 10px; }
+        
+        label { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; display: block; }
+        input, select { width: 100%; background: #08080c; border: 1px solid var(--border); color: white; padding: 10px; margin-bottom: 12px; border-radius: 8px; font-family: inherit; font-size: 0.85rem; }
+        
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 0.75rem; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+
+        .table-container { background: var(--bg-panel); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+        .table-controls { padding: 15px; background: #161622; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th { padding: 12px 15px; text-align: left; color: var(--text-muted); font-size: 0.75rem; }
+        td { padding: 12px 15px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        
+        .badge { padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; background: #1a1a2e; border: 1px solid var(--border); }
+        .del-btn { color: var(--text-muted); cursor: pointer; font-size: 1.1rem; }
+        .del-btn:hover { color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="brand"><h1>HOME<span>+</span></h1></div>
+        <div class="header-stats">
+            <div class="stat-mini"><span class="stat-label">Ganhos</span><div id="h-ganho" class="stat-value" style="color:var(--success)">R$ 0,00</div></div>
+            <div class="stat-mini"><span class="stat-label">Gastos</span><div id="h-gasto" class="stat-value" style="color:var(--accent)">R$ 0,00</div></div>
+            <div class="stat-mini"><span class="stat-label">Saldo</span><div id="h-saldo" class="stat-value">R$ 0,00</div></div>
+        </div>
+    </header>
+
+    <div class="profile-bar" id="profile-list"></div>
+    <div class="card-row" id="bank-cards"></div>
+
+    <div class="dashboard-grid">
+        <aside>
+            <div class="form-card" style="border-top: 3px solid var(--accent);">
+                <h3>Novo Gasto</h3>
+                <form id="expense-form">
+                    <label>Usuário</label><select id="exp-user" class="user-select" required><option value="" disabled selected>Quem gastou?</option></select>
+                    <label>Categoria</label>
+                    <select id="exp-cat" required>
+                        <option value="" disabled selected>Selecione a categoria...</option>
+                        <option>Aluguel</option><option>Contas Fixas</option><option>Mercado</option><option>Lazer</option><option>Transporte</option><option>Outros</option>
+                    </select>
+                    <label>Cartão / Banco</label><select id="exp-bank" class="bank-select" required><option value="" disabled selected>Selecione o banco...</option></select>
+                    <div style="display:flex; gap:10px;">
+                        <div style="flex:2;"><label>Valor Total</label><input type="number" id="exp-val" step="0.01" required></div>
+                        <div style="flex:1;"><label>Parc.</label><input type="number" id="exp-parc" value="1" min="1"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Registrar Gasto</button>
+                </form>
+            </div>
+
+            <div class="form-card" style="border-top: 3px solid var(--success);">
+                <h3>Novo Ganho</h3>
+                <form id="gain-form">
+                    <label>Recebido por</label><select id="gain-user" class="user-select" required><option value="" disabled selected>Quem recebeu?</option></select>
+                    <label>Descrição</label><input type="text" id="gain-desc" placeholder="Ex: Salário" required>
+                    <label>Valor</label><input type="number" id="gain-val" step="0.01" required>
+                    <button type="submit" class="btn btn-success">Adicionar Ganho</button>
+                </form>
+            </div>
+
+            <div class="form-card">
+                <h3>Gerenciar</h3>
+                <label>Nova Pessoa</label>
+                <div style="display:flex; gap:5px; margin-bottom:15px;">
+                    <input type="text" id="new-user-name" placeholder="Nome" style="margin:0;">
+                    <button class="btn btn-primary" style="width:40px;" onclick="addUser()">+</button>
+                </div>
+                <label>Novo Banco</label>
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="new-bank-name" placeholder="Banco" style="margin:0;">
+                    <button class="btn btn-primary" style="width:40px;" onclick="addBank()">+</button>
+                </div>
+                <div id="manage-lists" style="margin-top:20px; font-size:0.75rem; border-top:1px solid var(--border); padding-top:15px;">
+                    <div id="manage-users-list"></div>
+                    <div id="manage-banks-list" style="margin-top:15px;"></div>
+                </div>
+            </div>
+            <button class="btn btn-ghost" onclick="exportData()" style="margin-bottom:20px;">💾 Backup Dados</button>
+        </aside>
+
+        <main>
+            <div class="table-container">
+                <div class="table-controls">
+                    <b style="font-size:0.85rem;">Histórico</b>
+                    <div style="display:flex; gap:8px;">
+                        <select id="f-user" onchange="render()" style="margin:0; width:auto; height:32px; font-size:0.7rem; background:#08080c;">
+                            <option value="ALL">Todos Usuários</option>
+                        </select>
+                        <select id="f-type" onchange="render()" style="margin:0; width:auto; height:32px; font-size:0.7rem; background:#08080c;">
+                            <option value="ALL">Todos Tipos</option>
+                            <option value="EXPENSE">Só Gastos</option>
+                            <option value="GAIN">Só Ganhos</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Quem</th><th>Descrição</th><th>Banco</th><th>Valor</th><th></th></tr></thead>
+                        <tbody id="main-table"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    let db = JSON.parse(localStorage.getItem('hplus_final_db')) || {
+        users: ['Carla', 'David'],
+        banks: ['PICPAY', 'NUBANK', 'BRADESCO'],
+        expenses: [],
+        gains: [],
+        limits: { PICPAY: 0, NUBANK: 0, BRADESCO: 0 }
+    };
+
+    const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+    function addUser() {
+        const name = document.getElementById('new-user-name').value.trim();
+        if (name && !db.users.includes(name)) { db.users.push(name); document.getElementById('new-user-name').value = ''; saveAndRefresh(); }
+    }
+
+    function addBank() {
+        const name = document.getElementById('new-bank-name').value.trim().toUpperCase();
+        if (name && !db.banks.includes(name)) { db.banks.push(name); db.limits[name] = 0; document.getElementById('new-bank-name').value = ''; saveAndRefresh(); }
+    }
+
+    function removeUser(n) { if(confirm(`Remover ${n}?`)) { db.users = db.users.filter(u => u !== n); saveAndRefresh(); } }
+    function removeBank(n) { if(confirm(`Remover ${n}?`)) { db.banks = db.banks.filter(b => b !== n); delete db.limits[n]; saveAndRefresh(); } }
+
+    document.getElementById('expense-form').onsubmit = (e) => {
+        e.preventDefault();
+        const total = parseFloat(document.getElementById('exp-val').value);
+        const parc = parseInt(document.getElementById('exp-parc').value) || 1;
+        db.expenses.push({
+            user: document.getElementById('exp-user').value,
+            cat: document.getElementById('exp-cat').value,
+            bank: document.getElementById('exp-bank').value,
+            valMensal: total / parc, valTotal: total, parc: parc, id: Date.now()
+        });
+        e.target.reset(); 
+        saveAndRefresh();
+    };
+
+    document.getElementById('gain-form').onsubmit = (e) => {
+        e.preventDefault();
+        db.gains.push({
+            user: document.getElementById('gain-user').value,
+            desc: document.getElementById('gain-desc').value,
+            val: parseFloat(document.getElementById('gain-val').value), id: Date.now()
+        });
+        e.target.reset(); 
+        saveAndRefresh();
+    };
+
+    function render() {
+        const fUser = document.getElementById('f-user').value;
+        const fType = document.getElementById('f-type').value;
+        const table = document.getElementById('main-table');
+        const cards = document.getElementById('bank-cards');
+        table.innerHTML = ''; cards.innerHTML = '';
+
+        let totals = { in: 0, out: 0, bankMensal: {}, bankTotal: {} };
+        db.banks.forEach(b => { totals.bankMensal[b] = 0; totals.bankTotal[b] = 0; });
+
+        // Ganhos
+        if (fType === 'ALL' || fType === 'GAIN') {
+            db.gains.forEach((g, i) => {
+                if (fUser === 'ALL' || g.user === fUser) {
+                    totals.in += g.val;
+                    table.innerHTML += `<tr><td><b>${g.user}</b></td><td style="color:var(--success)">${g.desc}</td><td><span class="badge">GANHO</span></td><td style="color:var(--success); font-weight:700;">${fmt.format(g.val)}</td><td><span class="del-btn" onclick="deleteItem('gains', ${i})">✖</span></td></tr>`;
+                }
+            });
+        }
+
+        // Gastos
+        db.expenses.forEach((ex, i) => {
+            if (fUser === 'ALL' || ex.user === fUser) {
+                totals.out += ex.valMensal;
+                if (totals.bankMensal.hasOwnProperty(ex.bank)) {
+                    totals.bankMensal[ex.bank] += ex.valMensal;
+                    totals.bankTotal[ex.bank] += ex.valTotal;
+                }
+                if (fType === 'ALL' || fType === 'EXPENSE') {
+                    table.innerHTML += `<tr><td><b>${ex.user}</b></td><td>${ex.cat} <small>(${ex.parc}x)</small></td><td><span class="badge">${ex.bank}</span></td><td style="color:var(--accent); font-weight:700;">${fmt.format(ex.valMensal)}</td><td><span class="del-btn" onclick="deleteItem('expenses', ${i})">✖</span></td></tr>`;
+                }
+            }
+        });
+
+        document.getElementById('h-ganho').innerText = fmt.format(totals.in);
+        document.getElementById('h-gasto').innerText = fmt.format(totals.out);
+        const saldo = totals.in - totals.out;
+        document.getElementById('h-saldo').innerText = fmt.format(saldo);
+        document.getElementById('h-saldo').style.color = saldo >= 0 ? 'var(--success)' : 'var(--accent)';
+
+        db.banks.forEach(b => {
+            let lim = db.limits[b] || 0;
+            let usado = totals.bankTotal[b];
+            let perc = lim > 0 ? (usado / lim) * 100 : 0;
+            cards.innerHTML += `
+                <div class="bank-card">
+                    <div style="font-size:0.6rem; color:var(--text-muted); font-weight:700; margin-bottom:5px;">${b}</div>
+                    <div style="font-size:1.4rem; font-weight:800;">${fmt.format(totals.bankMensal[b])}</div>
+                    <div class="progress-bg"><div class="progress-fill" style="width:${Math.min(perc,100)}%; background:${perc > 90 ? 'var(--accent)' : 'var(--success)'}"></div></div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.65rem; color:var(--text-muted);">
+                        <span>Limite: ${fmt.format(lim)}</span>
+                        <span>${Math.round(perc)}%</span>
+                    </div>
+                    <input type="number" value="${lim}" onchange="updateLimit('${b}', this.value)" style="margin-top:10px; height:24px; font-size:0.7rem; padding:2px 5px;">
+                </div>`;
+        });
+    }
+
+    function deleteItem(type, i) { if(confirm("Remover?")) { db[type].splice(i, 1); saveAndRefresh(); } }
+    function updateLimit(b, v) { db.limits[b] = parseFloat(v) || 0; saveAndRefresh(); }
+    function saveAndRefresh() { localStorage.setItem('hplus_final_db', JSON.stringify(db)); init(); }
+
+    function init() {
+        const uSels = document.querySelectorAll('.user-select');
+        const bSels = document.querySelectorAll('.bank-select');
+        const fUser = document.getElementById('f-user');
+        const profBar = document.getElementById('profile-list');
+        const curF = fUser.value;
+
+        // Populate User Selects
+        uSels.forEach(s => { 
+            const currentVal = s.value;
+            s.innerHTML = '<option value="" disabled selected>Escolha uma pessoa...</option>'; 
+            db.users.forEach(u => s.innerHTML += `<option value="${u}">${u}</option>`);
+            if (currentVal) s.value = currentVal;
+        });
+
+        // Populate Bank Selects
+        bSels.forEach(s => { 
+            const currentVal = s.value;
+            s.innerHTML = '<option value="" disabled selected>Escolha o banco...</option>'; 
+            db.banks.forEach(b => s.innerHTML += `<option value="${b}">${b}</option>`);
+            if (currentVal) s.value = currentVal;
+        });
+        
+        // History Filter
+        fUser.innerHTML = '<option value="ALL">Todos Usuários</option>';
+        db.users.forEach(u => fUser.innerHTML += `<option value="${u}">${u}</option>`);
+        fUser.value = curF;
+
+        // Top Profiles
+        profBar.innerHTML = `<div class="profile-box ${curF==='ALL'?'active':''}" onclick="setFilter('ALL')">Geral</div>`;
+        db.users.forEach(u => profBar.innerHTML += `<div class="profile-box ${curF===u?'active':''}" onclick="setFilter('${u}')">${u}</div>`);
+
+        document.getElementById('manage-users-list').innerHTML = '<b>Pessoas:</b><br>' + db.users.map(u => `<div style="display:flex; justify-content:space-between; padding:2px 0;">${u} <span class="del-btn" onclick="removeUser('${u}')">×</span></div>`).join('');
+        document.getElementById('manage-banks-list').innerHTML = '<b>Bancos:</b><br>' + db.banks.map(b => `<div style="display:flex; justify-content:space-between; padding:2px 0;">${b} <span class="del-btn" onclick="removeBank('${b}')">×</span></div>`).join('');
+
+        render();
+    }
+
+    function setFilter(u) { document.getElementById('f-user').value = u; init(); }
+    function exportData() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+        const dl = document.createElement('a');
+        dl.setAttribute("href", dataStr);
+        dl.setAttribute("download", "backup_financeiro.json");
+        dl.click();
+    }
+    window.onload = init;
+</script>
+</body>
+</html>
+
